@@ -1,0 +1,5 @@
+package com.incede.Model.journal.journalEntry;
+
+public class JournalEntry {
+
+}

@@ -1,0 +1,12 @@
+package com.incede.Repository.liability.liabilityMaster;
+
+package com.incede.Repository.liability.liabilityMaster;
+
+import com.project.core.entity.LiabilitySchemeMaster;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
+
+@Repository
+public interface LiabilitySchemeMasterRepository extends JpaRepository<LiabilitySchemeMaster, Integer> {
+    // Custom query methods can go here, e.g., find by scheme code
+}

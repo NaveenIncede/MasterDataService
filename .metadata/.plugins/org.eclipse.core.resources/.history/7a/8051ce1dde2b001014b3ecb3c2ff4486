@@ -1,0 +1,106 @@
+package com.incede.Service.nationality.nationalityStatus;
+
+
+
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import com.incede.Dto.nationality.nationalitystatus.NationalityDTO;
+import com.incede.Exception.BusinessException;
+import com.incede.Model.nationality.nationalityStatus.Nationality;
+import com.incede.Repository.nationality.nationalityStatus.NationalityRepository;
+import com.incede.Response.response.responseBody.ResponseWrapper;
+
+import java.util.List;
+import java.util.stream.Collectors;
+
+@Service
+public class NationalityService {
+
+    private final NationalityRepository nationalityRepository;
+
+    public NationalityService(NationalityRepository nationalityRepository) {
+        this.nationalityRepository = nationalityRepository;
+    }
+
+    private NationalityDTO toDto(Nationality nationality) {
+        NationalityDTO dto = new NationalityDTO();
+        dto.setNationalityId(nationality.getNationalityId());
+        dto.setNationality(nationality.getNationality());
+        dto.setIsActive(nationality.getIsActive());
+        dto.setTenantId(nationality.getTenantId());
+        return dto;
+    }
+
+    private Nationality toEntity(NationalityDTO dto) {
+        Nationality entity = new Nationality();
+        entity.setNationalityId(dto.getNationalityId());
+        entity.setNationality(dto.getNationality());
+        entity.setIsActive(dto.getIsActive() != null ? dto.getIsActive() : true);
+        entity.setTenantId(dto.getTenantId());
+        return entity;
+    }
+
+    @Transactional(readOnly = true)
+    public ResponseWrapper<List<NationalityDTO>> getAllNationalities() {
+        List<NationalityDTO> nationalities = nationalityRepository.findByIsActiveTrue().stream()
+                .map(this::toDto)
+                .collect(Collectors.toList());
+
+        return new ResponseWrapper<>("success", nationalities, "Nationalities fetched successfully");
+    }
+
+    @Transactional(readOnly = true)
+    public ResponseWrapper<NationalityDTO> getNationalityById(Long id) {
+        Nationality nationality = nationalityRepository.findById(id)
+                .orElseThrow(() -> new BusinessException("Nationality not found with ID: " + id));
+
+        NationalityDTO nationalityDTO = toDto(nationality);
+
+        return new ResponseWrapper<>("success", nationalityDTO, "Nationality fetched successfully");
+    }
+
+    @Transactional
+    public ResponseWrapper<Nationality> createOrUpdateNationality(NationalityDTO dto) {
+        Nationality existingNationality = nationalityRepository.findById(dto.getNationalityId())
+                .orElse(null);
+
+        if (existingNationality != null) {
+            // Update existing nationality
+            if (!existingNationality.getNationality().equalsIgnoreCase(dto.getNationality())) {
+                boolean exists = nationalityRepository.existsByTenantIdAndNationality(dto.getTenantId(), dto.getNationality());
+                if (exists) {
+                    throw new BusinessException("Nationality name already exists for this tenant.");
+                }
+            }
+
+            existingNationality.setNationality(dto.getNationality());
+            existingNationality.setIsActive(dto.getIsActive() != null ? dto.getIsActive() : true);
+            Nationality updated = nationalityRepository.save(existingNationality);
+
+            return new ResponseWrapper<>("success", updated, "Nationality updated successfully");
+        } else {
+            // Create new nationality
+            boolean exists = nationalityRepository.existsByTenantIdAndNationality(dto.getTenantId(), dto.getNationality());
+            if (exists) {
+                throw new BusinessException("Nationality already exists for this tenant.");
+            }
+
+            Nationality nationality = toEntity(dto);
+            Nationality created = nationalityRepository.save(nationality);
+
+            return new ResponseWrapper<>("success", created, "Nationality created successfully");
+        }
+    }
+
+    @Transactional
+    public ResponseWrapper<String> deleteNationality(Long id) {
+        Nationality nationality = nationalityRepository.findById(id)
+                .orElseThrow(() -> new BusinessException("Cannot delete. Nationality not found with ID: " + id));
+
+        nationality.setIsActive(false);
+        nationalityRepository.save(nationality); // Soft delete
+
+        return new ResponseWrapper<>("success", "Nationality deleted successfully", "Nationality deleted");
+    }
+}

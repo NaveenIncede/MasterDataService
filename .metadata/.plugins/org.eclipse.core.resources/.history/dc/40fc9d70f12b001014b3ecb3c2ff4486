@@ -1,0 +1,19 @@
+package com.incede.Dto.nationality.nationalitystatus;
+
+import com.incede.Model.baseentity.BaseEntity;
+
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+@Data
+@AllArgsConstructor
+@NoArgsConstructor
+public class NationalityDTO extends BaseEntity{
+
+    private Long nationalityId;
+    private Long tenantId;
+    private String nationality;
+    private Boolean isActive;
+
+}

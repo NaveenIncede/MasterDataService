@@ -1,0 +1,43 @@
+package com.incede.Service.loanTransaction.loanTransationengine;
+
+import java.math.BigDecimal;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import com.incede.Dto.loanTransaction.loanTransactionEngine.LoanTransactionDTO;
+import com.incede.Exception.BusinessException;
+import com.incede.Response.response.responseBody.ResponseWrapper;
+import com.incede.Service.journal.journalEntry.JournalEntryService;
+import com.incede.Service.scheme.schemeGl.SchemeGlService;
+
+@Service
+public class LoanTransactionService {
+
+    private final JournalEntryService journalEntryService;
+    private final SchemeGlService schemeGlService;
+
+    public LoanTransactionService(JournalEntryService journalEntryService, SchemeGlService schemeGlService) {
+        this.journalEntryService = journalEntryService;
+        this.schemeGlService = schemeGlService;
+    }
+
+    @Transactional
+    public ResponseWrapper<String> postLoanTransaction(LoanTransactionDTO loanTransactionDTO) {
+        // Fetch GL account IDs for each transaction type
+        Integer principalGL = schemeGlService.getGlAccountId(loanTransactionDTO.getSchemeId(), "PRINCIPAL").getData();
+        Integer interestGL = schemeGlService.getGlAccountId(loanTransactionDTO.getSchemeId(), "INTEREST").getData();
+        Integer penalGL = schemeGlService.getGlAccountId(loanTransactionDTO.getSchemeId(), "PENAL").getData();
+        Integer feesGL = schemeGlService.getGlAccountId(loanTransactionDTO.getSchemeId(), "FEES").getData();
+
+        // Post transactions to GL accounts
+        journalEntryService.postTransaction(principalGL, loanTransactionDTO.getPrincipalAmount());
+        journalEntryService.postTransaction(interestGL, loanTransactionDTO.getInterestAmount());
+        journalEntryService.postTransaction(penalGL, loanTransactionDTO.getPenalAmount());
+        journalEntryService.postTransaction(feesGL, loanTransactionDTO.getFeesAmount());
+
+        return new ResponseWrapper<>("success", "Loan transaction posted successfully", "Transactions posted to GL accounts");
+    }
+}
+

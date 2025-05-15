@@ -1,0 +1,43 @@
+package com.incede.Dto.loanScheme.loanSchemeMaster;
+
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+
+import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.UUID;
+
+@Data
+@AllArgsConstructor
+@NoArgsConstructor
+public class LoanSchemeMasterDto {
+
+    private Integer schemeId;
+    private Integer tenantId;
+    private String schemeName;
+    private String schemeCode;
+    private Integer productId;
+    private Boolean isEpi;
+    private BigDecimal minLoanAmount;
+    private BigDecimal maxLoanAmount;
+    private BigDecimal maxInterestRate;
+    private LocalDate effectiveFrom;
+    private LocalDate effectiveTo;
+    private BigDecimal ltvRate;
+    private Integer minInterestDays;
+    private Boolean slabDownAllowed;
+    private Integer authorisedBy;
+    private BigDecimal penalInterestRate;
+    private String penalCalculateOn;
+    private LocalDateTime authorisedAt;
+    private Boolean isActive;
+    private UUID identity;
+    private Integer createdBy;
+    private LocalDateTime createdAt;
+    private Integer updatedBy;
+    private LocalDateTime updatedAt;
+}

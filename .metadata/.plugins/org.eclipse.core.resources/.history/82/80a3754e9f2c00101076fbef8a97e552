@@ -1,0 +1,75 @@
+package com.incede.Service.loanScheme.loanSchemeMaster;
+
+import java.util.List;
+
+import org.springframework.beans.BeanUtils;
+import org.springframework.stereotype.Service;
+
+import com.incede.Dto.loanScheme.loanSchemeMaster.LoanSchemeMasterDto;
+import com.incede.Exception.BusinessException;
+import com.incede.Model.loanScheme.loanSchemeMaster.LoanSchemeMaster;
+import com.incede.Repository.loanScheme.loanSchemeMaster.LoanSchemeMasterRepository;
+import com.incede.Response.response.responseBody.ResponseWrapper;
+
+@Service
+@RequiredArgsConstructor
+public class LoanSchemeMasterService {
+
+    private final LoanSchemeMasterRepository repository;
+
+    // Create or Update method
+    public ResponseWrapper<LoanSchemeMasterDto> createOrUpdate(LoanSchemeMasterDto dto) {
+        LoanSchemeMaster entity;
+
+        // If schemeId is null or 0, it's a new entity
+        if (dto.getSchemeId() == null || dto.getSchemeId() == 0) {
+            entity = LoanSchemeMaster.toEntity(dto); // Convert DTO to entity
+            entity.setIsActive(true); // Default value for new entries/ Set updated date
+            entity.setIdentity(UUID.randomUUID()); // Set unique identity
+
+            LoanSchemeMaster savedEntity = repository.save(entity); // Save entity
+            return new ResponseWrapper<>("Loan scheme created successfully", savedEntity.toDto());
+        }
+
+        // For existing entity, perform update
+        entity = repository.findByIdAndIsActiveTrue(dto.getSchemeId())
+                .orElseThrow(() -> new BusinessException("Loan scheme not found"));
+
+        // Update entity properties from DTO (excluding non-editable fields)
+        BeanUtils.copyProperties(dto, entity, "schemeId", "createdAt", "identity", "createdBy");
+        entity.setUpdatedAt(LocalDateTime.now()); // Update modified date
+        entity.setUpdatedBy(dto.getUpdatedBy()); // Set the user performing the update
+
+        LoanSchemeMaster updatedEntity = repository.save(entity); // Save updated entity
+        return new ResponseWrapper<>("Loan scheme updated successfully", updatedEntity.toDto());
+    }
+
+    // Get a loan scheme by ID
+    public ResponseWrapper<LoanSchemeMasterDto> getById(Integer id) {
+        LoanSchemeMaster entity = repository.findByIdAndIsActiveTrue(id)
+                .orElseThrow(() -> new BusinessException("Loan scheme not found"));
+        return new ResponseWrapper<>("Loan scheme retrieved successfully", entity.toDto());
+    }
+
+    // Get all loan schemes
+    public ResponseWrapper<List<LoanSchemeMasterDto>> getAll() {
+        List<LoanSchemeMaster> schemes = repository.findAllByIsActiveTrue();
+        if (schemes.isEmpty()) {
+            throw new BusinessException("No active loan schemes found");
+        }
+        List<LoanSchemeMasterDto> dtoList = schemes.stream()
+                .map(LoanSchemeMaster::toDto)
+                .collect(Collectors.toList());
+        return new ResponseWrapper<>("Loan schemes retrieved successfully", dtoList);
+    }
+
+    // Soft delete loan scheme
+    public ResponseWrapper<String> softDelete(Integer id) {
+        LoanSchemeMaster entity = repository.findByIdAndIsActiveTrue(id)
+                .orElseThrow(() -> new BusinessException("Loan scheme not found"));
+
+        entity.setIsActive(false); // Mark as inactive for soft deletion
+        repository.save(entity); // Save updated entity
+        return new ResponseWrapper<>("Loan scheme soft-deleted successfully", "Deleted");
+    }
+}

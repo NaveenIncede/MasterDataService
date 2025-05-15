@@ -1,0 +1,8 @@
+package com.incede.Repository.loanTransaction.loanTransactionEngine;
+
+import org.springframework.stereotype.Repository;
+
+@Repository
+public interface LoanTransactionRepository extends JpaRepository<LoanTransaction, Integer> {
+    // CRUD operations for loan transactions (if needed)
+}

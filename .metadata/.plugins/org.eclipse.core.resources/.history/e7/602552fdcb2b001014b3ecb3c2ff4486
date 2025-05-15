@@ -1,0 +1,5 @@
+package com.incede.Repository.nationality.nationalityStatus;
+
+public interface NationalityRepository {
+
+}

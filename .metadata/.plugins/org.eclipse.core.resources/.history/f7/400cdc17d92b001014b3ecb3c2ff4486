@@ -1,0 +1,5 @@
+package com.incede.Repository.liability.liabilityMaster;
+
+public interface LiabilityRepository {
+
+}

@@ -1,0 +1,136 @@
+package com.incede.Service.loanScheme.loanSchemeMaster;
+
+import java.util.List;
+import java.util.UUID;
+import java.util.stream.Collectors;
+
+import org.springframework.beans.BeanUtils;
+import org.springframework.stereotype.Service;
+
+import com.incede.Dto.loanScheme.loanSchemeMaster.LoanSchemeMasterDto;
+import com.incede.Exception.BusinessException;
+import com.incede.Model.loanScheme.loanSchemeMaster.LoanSchemeMaster;
+import com.incede.Repository.loanScheme.loanSchemeMaster.LoanSchemeMasterRepository;
+import com.incede.Response.response.responseBody.ResponseWrapper;
+
+import lombok.RequiredArgsConstructor;
+
+@Service
+@RequiredArgsConstructor
+public class LoanSchemeMasterService {
+
+    private final LoanSchemeMasterRepository repository;
+
+    // Create or Update method
+    public ResponseWrapper<LoanSchemeMasterDto> createOrUpdate(LoanSchemeMasterDto dto) {
+        LoanSchemeMaster entity;
+
+        // If schemeId is null or 0, it's a new entity
+        if (dto.getSchemeId() == null || dto.getSchemeId() == 0) {
+            entity = toEntity(dto); // Convert DTO to entity
+            entity.setIsActive(true); // Default value for new entries
+            entity.setIdentity(UUID.randomUUID()); // Set unique identity
+
+            LoanSchemeMaster savedEntity = repository.save(entity); // Save entity
+            return new ResponseWrapper<>("Loan scheme created successfully", toDto(savedEntity));
+        }
+
+        // For existing entity, perform update
+        entity = repository.findByIdAndIsActiveTrue(dto.getSchemeId())
+                .orElseThrow(() -> new BusinessException("Loan scheme not found"));
+
+        // Update entity properties from DTO (excluding non-editable fields)
+        BeanUtils.copyProperties(dto, entity, "schemeId", "createdAt", "identity", "createdBy");
+        entity.setUpdatedBy(dto.getUpdatedBy()); // Set the user performing the update
+
+        LoanSchemeMaster updatedEntity = repository.save(entity); // Save updated entity
+        return new ResponseWrapper<>("Loan scheme updated successfully", toDto(updatedEntity));
+    }
+
+    // Get a loan scheme by ID
+    public ResponseWrapper<LoanSchemeMasterDto> getById(Integer id) {
+        LoanSchemeMaster entity = repository.findByIdAndIsActiveTrue(id)
+                .orElseThrow(() -> new BusinessException("Loan scheme not found"));
+        return new ResponseWrapper<>("Loan scheme retrieved successfully", toDto(entity));
+    }
+
+    // Get all loan schemes
+    public ResponseWrapper<List<LoanSchemeMasterDto>> getAll() {
+        List<LoanSchemeMaster> schemes = repository.findAllByIsActiveTrue();
+        if (schemes.isEmpty()) {
+            throw new BusinessException("No active loan schemes found");
+        }
+        List<LoanSchemeMasterDto> dtoList = schemes.stream()
+                .map(this::toDto)
+                .collect(Collectors.toList());
+        return new ResponseWrapper<>("Loan schemes retrieved successfully", dtoList);
+    }
+
+    // Soft delete loan scheme
+    public ResponseWrapper<String> softDelete(Integer id) {
+        LoanSchemeMaster entity = repository.findByIdAndIsActiveTrue(id)
+                .orElseThrow(() -> new BusinessException("Loan scheme not found"));
+
+        entity.setIsActive(false); // Mark as inactive for soft deletion
+        repository.save(entity); // Save updated entity
+        return new ResponseWrapper<>("Loan scheme soft-deleted successfully", "Deleted");
+    }
+
+    // Convert entity to DTO
+    private LoanSchemeMasterDto toDto(LoanSchemeMaster entity) {
+        LoanSchemeMasterDto dto = new LoanSchemeMasterDto();
+        dto.setSchemeId(entity.getSchemeId());
+        dto.setTenantId(entity.getTenantId());
+        dto.setSchemeName(entity.getSchemeName());
+        dto.setSchemeCode(entity.getSchemeCode());
+        dto.setProductId(entity.getProductId());
+        dto.setIsEpi(entity.getIsEpi());
+        dto.setMinLoanAmount(entity.getMinLoanAmount());
+        dto.setMaxLoanAmount(entity.getMaxLoanAmount());
+        dto.setMaxInterestRate(entity.getMaxInterestRate());
+        dto.setEffectiveFrom(entity.getEffectiveFrom());
+        dto.setEffectiveTo(entity.getEffectiveTo());
+        dto.setLtvRate(entity.getLtvRate());
+        dto.setMinInterestDays(entity.getMinInterestDays());
+        dto.setSlabDownAllowed(entity.getSlabDownAllowed());
+        dto.setAuthorisedBy(entity.getAuthorisedBy());
+        dto.setPenalInterestRate(entity.getPenalInterestRate());
+        dto.setPenalCalculateOn(entity.getPenalCalculateOn());
+        dto.setIdentity(entity.getIdentity());
+        dto.setIsActive(entity.getIsActive());
+        dto.setCreatedBy(entity.getCreatedBy());
+        dto.setCreatedAt(entity.getCreatedAt());
+        dto.setUpdatedBy(entity.getUpdatedBy());
+        dto.setUpdatedAt(entity.getUpdatedAt());
+        return dto;
+    }
+
+    // Convert DTO to entity
+    private LoanSchemeMaster toEntity(LoanSchemeMasterDto dto) {
+        LoanSchemeMaster entity = new LoanSchemeMaster();
+        entity.setSchemeId(dto.getSchemeId());
+        entity.setTenantId(dto.getTenantId());
+        entity.setSchemeName(dto.getSchemeName());
+        entity.setSchemeCode(dto.getSchemeCode());
+        entity.setProductId(dto.getProductId());
+        entity.setIsEpi(dto.getIsEpi() != null ? dto.getIsEpi() : false);
+        entity.setMinLoanAmount(dto.getMinLoanAmount());
+        entity.setMaxLoanAmount(dto.getMaxLoanAmount());
+        entity.setMaxInterestRate(dto.getMaxInterestRate());
+        entity.setEffectiveFrom(dto.getEffectiveFrom());
+        entity.setEffectiveTo(dto.getEffectiveTo());
+        entity.setLtvRate(dto.getLtvRate());
+        entity.setMinInterestDays(dto.getMinInterestDays());
+        entity.setSlabDownAllowed(dto.getSlabDownAllowed() != null ? dto.getSlabDownAllowed() : false);
+        entity.setAuthorisedBy(dto.getAuthorisedBy());
+        entity.setPenalInterestRate(dto.getPenalInterestRate());
+        entity.setPenalCalculateOn(dto.getPenalCalculateOn());
+        entity.setIdentity(dto.getIdentity() != null ? dto.getIdentity() : UUID.randomUUID());
+        entity.setIsActive(dto.getIsActive() != null ? dto.getIsActive() : true);
+        entity.setCreatedBy(dto.getCreatedBy());
+        entity.setCreatedAt(dto.getCreatedAt());
+        entity.setUpdatedBy(dto.getUpdatedBy());
+        entity.setUpdatedAt(dto.getUpdatedAt());
+        return entity;
+    }
+}

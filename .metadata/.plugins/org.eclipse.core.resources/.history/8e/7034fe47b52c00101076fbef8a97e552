@@ -1,0 +1,19 @@
+package com.incede.Repository.scheme.schemeGl;
+
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
+
+import com.incede.Model.scheme.schemeGl.SchemeGl;
+
+import java.util.List;
+
+@Repository
+public interface SchemeGlRepository extends JpaRepository<SchemeGl, Integer> {
+
+    // Method to fetch all active (non-deleted) projects
+    List<SchemeGl> findByIsActiveTrue();
+
+    List<SchemeGl> findByTenantIdAndIsActiveTrue(Integer tenantId);
+
+    // You can add other query methods as needed for additional functionality.
+}

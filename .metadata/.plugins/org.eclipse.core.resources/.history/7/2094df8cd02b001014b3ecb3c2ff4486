@@ -1,0 +1,23 @@
+package com.incede.Dto.scheme.schemGl;
+
+import java.util.UUID;
+
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+@Data
+@AllArgsConstructor
+@NoArgsConstructor
+public class SchemeGlDto {
+
+    private Long glConfigId;
+    private Long tenantId;
+    private Long schemeId;
+    private String glAccountType;
+    private Long glAccountId;
+    private UUID identity;
+    private Boolean isActive;
+    private Long createdBy;
+    private Long updatedBy;
+}

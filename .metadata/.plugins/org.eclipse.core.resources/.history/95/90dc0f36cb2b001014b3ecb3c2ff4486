@@ -1,0 +1,5 @@
+package com.incede.Dto.nationality.nationalitystatus;
+
+public class NationalityDTO {
+
+}

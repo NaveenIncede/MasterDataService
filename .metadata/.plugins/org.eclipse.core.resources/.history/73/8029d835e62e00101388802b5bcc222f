@@ -1,0 +1,5 @@
+package com.incede.Service.journal.journalEntry;
+
+public class JournalEntryService {
+
+}

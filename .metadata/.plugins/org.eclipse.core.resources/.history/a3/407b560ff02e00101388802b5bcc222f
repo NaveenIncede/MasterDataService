@@ -1,0 +1,5 @@
+package com.incede.Repository.journal.journalEntry;
+
+public interface JournalEntryRepository {
+
+}

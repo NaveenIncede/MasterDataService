@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<session version="1.0">
+<refactoring comment="Rename resource &apos;master-data-management-service/src/main/java/com/incede/Service/loanTransactio&apos; to &apos;loanTransaction&apos;" description="Rename resource &apos;loanTransactio&apos;" flags="7" id="org.eclipse.ltk.core.refactoring.rename.resource" input="src/main/java/com/incede/Service/loanTransactio" name="loanTransaction" stamp="1747022562142" updateReferences="true"/>
+</session>

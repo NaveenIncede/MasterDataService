@@ -1,0 +1,30 @@
+package com.incede.Controller.liability.liabilityMaster;
+
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+@RestController
+@RequestMapping("/api/v1/liability-scheme-master")
+public class LiabilitySchemeMasterController {
+
+    @Autowired
+    private LiabilitySchemeMasterService service;
+
+    @PostMapping("/")
+    public ResponseEntity<ResponseWrapper<LiabilitySchemeMasterDto>> saveOrUpdate(@RequestBody LiabilitySchemeMasterDto dto) {
+        ResponseWrapper<LiabilitySchemeMasterDto> response = service.saveOrUpdate(dto);
+        return ResponseEntity.status(201).body(response);  // 201 Created
+    }
+
+    @GetMapping("/")
+    public ResponseEntity<ResponseWrapper<List<LiabilitySchemeMasterDto>>> getAllActive() {
+        ResponseWrapper<List<LiabilitySchemeMasterDto>> response = service.getAllActive();
+        return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<ResponseWrapper<LiabilitySchemeMasterDto>> getById(@PathVariable Integer id) {
+        ResponseWrapper<LiabilitySchemeMasterDto> response = service.getById(id);
+        return ResponseEntity.ok(response);
+    }
+}

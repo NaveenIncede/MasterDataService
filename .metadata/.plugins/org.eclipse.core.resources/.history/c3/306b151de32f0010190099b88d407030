@@ -1,0 +1,85 @@
+package com.incede.Dto.liability.liabilityMaster;
+
+import jakarta.validation.constraints.*;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.util.UUID;
+
+@Data
+@AllArgsConstructor
+@NoArgsConstructor
+public class LiabilitySchemeMasterDto {
+
+    private Integer schemeId;
+
+    @NotBlank(message = "Scheme name must not be blank")
+    private String schemeName;
+
+    @NotBlank(message = "Scheme code must not be blank")
+    private String schemeCode;
+
+    @NotNull(message = "Product ID must not be null")
+    private Integer productId;
+
+    @NotNull(message = "Min deposit amount must not be null")
+    private BigDecimal minDepositAmount;
+
+    @NotNull(message = "Max deposit amount must not be null")
+    private BigDecimal maxDepositAmount;
+
+    @NotNull(message = "Max interest rate must not be null")
+    private BigDecimal maxInterestRate;
+
+    @NotNull(message = "Effective from date must not be null")
+    private LocalDate effectiveFrom;
+
+    @NotNull(message = "Effective to date must not be null")
+    private LocalDate effectiveTo;
+
+    @NotNull(message = "Multiples of must not be null")
+    private BigDecimal multiplesOf;
+
+    @NotNull(message = "Deposit period must not be null")
+    private Integer depositPeriod;
+
+    @NotBlank(message = "Period type must not be blank")
+    private String periodType;
+
+    @NotNull(message = "Special interest rate must not be null")
+    private BigDecimal specialInterestRate;
+
+    @NotBlank(message = "Interest accrual posting frequency must not be blank")
+    private String interestAccrualPostingFrequency;
+
+    @NotBlank(message = "Compound frequency must not be blank")
+    private String compoundFrequency;
+
+    @NotBlank(message = "Interest payment frequency must not be blank")
+    private String interestPaymentFrequency;
+
+    @NotNull(message = "Put option availability must not be null")
+    private Boolean putOptionAvailable;
+
+    @NotNull(message = "Put option after must not be null")
+    private Integer putOptionAfter;
+
+    @NotBlank(message = "Put option period type must not be blank")
+    private String putOptionPeriodType;
+
+    @NotBlank(message = "Authorised by must not be blank")
+    private String authorisedBy;
+
+    private LocalDate authorisedAt;
+
+    private Boolean isActive;
+
+    private UUID identity;
+
+    @NotNull(message = "Created by must not be null for new entries")
+    private Integer createdBy;
+
+    // Getters & Setters or use Lombok
+}

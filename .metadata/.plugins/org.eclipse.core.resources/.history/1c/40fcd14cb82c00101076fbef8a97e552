@@ -1,0 +1,29 @@
+package com.incede.Repository.scheme.schemeGl;
+
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
+import org.springframework.stereotype.Repository;
+
+import com.incede.Model.scheme.schemeGl.SchemeGl;
+
+import java.util.List;
+
+@Repository
+public interface SchemeGlRepository extends JpaRepository<SchemeGl, Integer> {
+
+    // Method to fetch all active (non-deleted) projects
+    List<SchemeGl> findByIsActiveTrue();
+
+    List<SchemeGl> findByTenantIdAndIsActiveTrue(Integer tenantId);
+
+    @Query(value = "SELECT CASE WHEN COUNT(*) > 0 THEN TRUE ELSE FALSE END FROM scheme_gl s " +
+            "WHERE s.scheme_id = :schemeId AND s.gl_account_type = :glAccountType " +
+            "AND (:glConfigId IS NULL OR s.gl_config_id <> :glConfigId)", nativeQuery = true)
+boolean isDuplicate(@Param("schemeId") Integer schemeId,
+                 @Param("glAccountType") String glAccountType,
+                 @Param("glConfigId") Integer glConfigId);
+
+
+    // You can add other query methods as needed for additional functionality.
+}

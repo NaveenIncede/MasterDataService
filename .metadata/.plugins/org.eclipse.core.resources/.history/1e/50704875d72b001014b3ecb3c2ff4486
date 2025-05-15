@@ -1,0 +1,5 @@
+package com.incede.Dto.liability.liabilityMaster;
+
+public class LiabilityDTO {
+
+}

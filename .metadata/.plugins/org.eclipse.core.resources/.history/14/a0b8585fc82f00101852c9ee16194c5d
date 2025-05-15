@@ -1,0 +1,124 @@
+package com.incede.Service.nationality.nationalityStatus;
+
+
+
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import com.incede.Dto.nationality.nationalitystatus.NationalityDTO;
+import com.incede.Exception.BusinessException;
+import com.incede.Model.nationality.nationalityStatus.Nationality;
+import com.incede.Repository.nationality.nationalityStatus.NationalityRepository;
+import com.incede.Response.response.responseBody.ResponseWrapper;
+
+import java.util.List;
+import java.util.stream.Collectors;
+
+@Service
+public class NationalityService {
+
+    private final NationalityRepository nationalityRepository;
+
+    public NationalityService(NationalityRepository nationalityRepository) {
+        this.nationalityRepository = nationalityRepository;
+    }
+
+    private NationalityDTO toDto(Nationality nationality) {
+        NationalityDTO dto = new NationalityDTO();
+        dto.setNationalityId(nationality.getNationalityId());
+        dto.setNationality(nationality.getNationality());
+        dto.setIsActive(nationality.getIsActive());
+        dto.setTenantId(nationality.getTenantId());
+        return dto;
+    }
+
+    public Nationality toEntity(NationalityDTO dto) {
+        Nationality nationality = new Nationality();
+
+        // Common fields
+        nationality.setNationality(dto.getNationality());
+        nationality.setTenantId(dto.getTenantId());
+        nationality.setIsActive(dto.getIsActive() != null ? dto.getIsActive() : true);
+
+        if (dto.getNationalityId() != null) {
+            // Update operation
+            nationality.setNationalityId(dto.getNationalityId());
+            nationality.setUpdatedBy(dto.getUpdatedBy()); // ← as requested
+        } else {
+            // Create operation
+            nationality.setCreatedBy(dto.getCreatedBy());
+        }
+
+        return nationality;
+    }
+
+
+
+
+    @Transactional(readOnly = true)
+    public ResponseWrapper<List<NationalityDTO>> getAllNationalities() {
+        List<NationalityDTO> nationalities = nationalityRepository.findByIsActiveTrue().stream()
+                .map(this::toDto)
+                .collect(Collectors.toList());
+
+        return new ResponseWrapper<>("success", nationalities, "Nationalities fetched successfully");
+    }
+
+    @Transactional(readOnly = true)
+    public ResponseWrapper<NationalityDTO> getNationalityById(Integer id) {
+        Nationality nationality = nationalityRepository.findById(id)
+                .orElseThrow(() -> new BusinessException("Nationality not found with ID: " + id));
+
+        NationalityDTO nationalityDTO = toDto(nationality);
+
+        return new ResponseWrapper<>("success", nationalityDTO, "Nationality fetched successfully");
+    }
+
+    @Transactional
+    public ResponseWrapper<Nationality> createOrUpdateNationality(NationalityDTO dto) {
+        if (dto.getNationalityId() != null) {
+            // Update existing nationality
+            Nationality existingNationality = nationalityRepository.findById(dto.getNationalityId())
+                    .orElseThrow(() -> new BusinessException("Nationality not found with ID: " + dto.getNationalityId()));
+
+            if (!existingNationality.getNationality().equalsIgnoreCase(dto.getNationality())) {
+                boolean exists = nationalityRepository.existsByTenantIdAndNationality(dto.getTenantId(), dto.getNationality());
+                if (exists) {
+                    throw new BusinessException("Nationality name already exists for this tenant.");
+                }
+            }
+
+            existingNationality.setNationality(dto.getNationality());
+            existingNationality.setIsActive(dto.getIsActive() != null ? dto.getIsActive() : true);
+            return new ResponseWrapper<>("success", nationalityRepository.save(existingNationality), "Nationality updated successfully");
+        }
+
+        // Create new nationality
+        boolean exists = nationalityRepository.existsByTenantIdAndNationality(dto.getTenantId(), dto.getNationality());
+        if (exists) {
+            throw new BusinessException("Nationality already exists for this tenant.");
+        }
+
+        Nationality nationality = toEntity(dto);
+        return new ResponseWrapper<>("success", nationalityRepository.save(nationality), "Nationality created successfully");
+    }
+
+
+    @Transactional
+    public ResponseWrapper<String> deleteNationality(Integer id) {
+        Nationality nationality = nationalityRepository.findById(id)
+                .orElseThrow(() -> new BusinessException("Cannot delete. Nationality not found with ID: " + id));
+
+        nationality.setIsActive(false);
+        nationalityRepository.save(nationality); // Soft delete
+
+        return new ResponseWrapper<>("success", "Nationality deleted successfully", "Nationality deleted");
+    }
+    
+    @Transactional
+    public List<NationalityDTO> getByTenantId(Integer tenantId) {
+        List<Nationality> nationalities = nationalityRepository.findByTenantIdAndIsActiveTrue(tenantId);
+        return nationalities.stream().map(this::toDto).collect(Collectors.toList());
+    }
+
+}

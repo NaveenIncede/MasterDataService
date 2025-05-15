@@ -1,0 +1,20 @@
+package com.incede.Service.journal.journalEntry;
+
+import java.math.BigDecimal;
+
+import org.springframework.stereotype.Service;
+
+import com.incede.Exception.BusinessException;
+
+@Service
+public class JournalEntryService {
+
+    public void postTransaction(Integer glAccountId, BigDecimal amount) {
+        if (glAccountId == null || amount == null || amount.compareTo(BigDecimal.ZERO) <= 0) {
+            throw new BusinessException("Invalid GL account or amount for transaction posting");
+        }
+
+        // Simulate posting logic (in a real system, integrate with accounting/ledger system)
+        System.out.printf("Posted transaction to GL Account [%d] with Amount [%s]%n", glAccountId, amount);
+    }
+}

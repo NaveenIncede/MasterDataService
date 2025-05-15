@@ -1,0 +1,35 @@
+package com.incede.Service.journal.journalEntry;
+
+import java.math.BigDecimal;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import com.incede.Model.journal.journalEntry.JournalEntry;
+import com.incede.Repository.journal.journalEntry.JournalEntryRepository;
+
+
+
+@Service
+public class JournalEntryService {
+
+    private final JournalEntryRepository journalEntryRepository;
+
+    @Autowired
+    public JournalEntryService(JournalEntryRepository journalEntryRepository) {
+        this.journalEntryRepository = journalEntryRepository;
+    }
+
+    @Transactional
+    public void postTransaction(Integer glAccountId, BigDecimal amount) {
+        // Create a new journal entry
+        JournalEntry journalEntry = new JournalEntry();
+        journalEntry.setGlAccountId(glAccountId);
+        journalEntry.setAmount(amount);
+
+        // Save to the journal entry table
+        journalEntryRepository.save(journalEntry);
+    }
+}
+

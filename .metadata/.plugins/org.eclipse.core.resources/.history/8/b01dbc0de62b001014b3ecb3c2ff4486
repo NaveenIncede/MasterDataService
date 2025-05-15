@@ -1,0 +1,23 @@
+package com.incede.Dto.scheme.schemGl;
+
+import java.util.UUID;
+
+import com.incede.Model.baseentity.BaseEntity;
+
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+@Data
+@AllArgsConstructor
+@NoArgsConstructor
+public class SchemeGlDTO extends BaseEntity{
+
+    private Integer glConfigId;
+    private Integer tenantId;
+    private Integer schemeId;
+    private String glAccountType;
+    private Integer glAccountId;
+    private UUID identity;
+    private Boolean isActive;
+}

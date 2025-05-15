@@ -1,0 +1,39 @@
+package com.incede.Dto.liability.liabilityMaster;
+
+import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.UUID;
+
+public class LiabilitySchemeMasterDto {
+
+    private Integer schemeId;
+    private String schemeName;
+    private String schemeCode;
+    private Integer productId;
+    private BigDecimal minDepositAmount;
+    private BigDecimal maxDepositAmount;
+    private BigDecimal maxInterestRate;
+    private LocalDate effectiveFrom;
+    private LocalDate effectiveTo;
+    private BigDecimal multiplesOf;
+    private Integer depositPeriod;
+    private String periodType;
+    private BigDecimal specialInterestRate;
+    private String interestAccrualPostingFrequency;
+    private String compoundFrequency;
+    private String interestPaymentFrequency;
+    private Boolean putOptionAvailable = true;
+    private Integer putOptionAfter;
+    private String putOptionPeriodType;
+    private Integer authorisedBy;
+    private LocalDateTime authorisedAt;
+    private Boolean isActive = true;
+    private UUID identity;
+    private Integer createdBy;
+    private LocalDateTime createdAt;
+    private Integer updatedBy;
+    private LocalDateTime updatedAt;
+
+    // Getters and setters
+}

@@ -1,0 +1,19 @@
+package com.incede.Repository.loanScheme.loanSchemeMaster;
+
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
+
+import com.incede.Model.loanScheme.loanSchemeMaster.LoanSchemeMaster;
+
+import java.util.List;
+import java.util.UUID;
+
+@Repository
+public interface LoanSchemeMasterRepository extends JpaRepository<LoanSchemeMaster, Integer> {
+
+    LoanSchemeMaster findByIdentity(UUID identity);
+
+    LoanSchemeMaster findBySchemeCode(String schemeCode);
+
+    List<LoanSchemeMaster> findAllByIsActiveTrue();
+}

@@ -1,0 +1,52 @@
+package com.incede.Controller.scheme.schemeGl;
+
+
+import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+import com.incede.Dto.scheme.schemGl.SchemeGlDTO;
+import com.incede.Response.response.responseBody.ResponseWrapper;
+import com.incede.Service.scheme.schemeGl.SchemeGlService;
+
+@RestController
+@RequestMapping("/v1/scheme-gl")
+public class SchemeGlController {
+
+    @Autowired
+    private SchemeGlService schemeGlService;
+
+    // Create or update
+    @PostMapping
+    public ResponseEntity<ResponseWrapper<SchemeGlDTO>> saveOrUpdate(@RequestBody SchemeGlDTO dto) {
+        return ResponseEntity.status(201).body(schemeGlService.saveOrUpdate(dto));
+    }
+
+    // Soft delete by ID
+    @DeleteMapping("/{id}")
+    public ResponseEntity<ResponseWrapper<Boolean>> softDelete(@PathVariable Integer id) {
+        return ResponseEntity.ok(schemeGlService.softDelete(id));
+    }
+
+    // Get all active scheme GLs
+    @GetMapping
+    public ResponseEntity<ResponseWrapper<?>> getAllActive() {
+        return ResponseEntity.ok(schemeGlService.getAllActive());
+    }
+
+    // Get by ID
+    @GetMapping("/{id}")
+    public ResponseEntity<ResponseWrapper<SchemeGlDTO>> getById(@PathVariable Integer id) {
+        return ResponseEntity.ok(schemeGlService.getById(id));
+    }
+    
+    @GetMapping("/tenant/{tenantId}")
+    public ResponseEntity<ResponseWrapper<List<SchemeGlDTO>>> getByTenantId(@PathVariable Integer tenantId) {
+        ResponseWrapper<List<SchemeGlDTO>> list = schemeGlService.getByTenantId(tenantId);
+        return ResponseEntity.ok(list);
+    }
+
+
+}

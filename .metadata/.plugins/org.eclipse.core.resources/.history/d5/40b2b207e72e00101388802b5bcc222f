@@ -1,0 +1,72 @@
+package com.incede.Service.loan;
+
+import java.math.BigDecimal;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.incede.Exception.BusinessException;
+// Import JournalEntryService
+import com.incede.Service.journal.journalEntry.JournalEntryService;
+
+@Service
+public class LoanTransactionService {
+
+    private final JournalEntryService journalEntryService;
+
+    @Autowired
+    public LoanTransactionService(JournalEntryService journalEntryService) {
+        this.journalEntryService = journalEntryService;
+    }
+
+    public void processLoanDisbursement(Integer schemeId, BigDecimal principalAmount, BigDecimal interestAmount, BigDecimal penalAmount, BigDecimal feesAmount) {
+        // Fetch mapped GL accounts for different transaction types (Principal, Interest, Penal, Fees)
+        Integer principalGL = getGlAccountId(schemeId, "PRINCIPAL");
+        Integer interestGL = getGlAccountId(schemeId, "INTEREST");
+        Integer penalGL = getGlAccountId(schemeId, "PENAL");
+        Integer feesGL = getGlAccountId(schemeId, "FEES");
+
+        // Post transactions to respective GL accounts
+        journalEntryService.postTransaction(principalGL, principalAmount);
+        journalEntryService.postTransaction(interestGL, interestAmount);
+        journalEntryService.postTransaction(penalGL, penalAmount);
+        journalEntryService.postTransaction(feesGL, feesAmount);
+
+        // Additional logic for loan disbursement if needed (e.g., updating loan records, sending notifications)
+        System.out.println("Loan disbursement processed successfully.");
+    }
+
+    public void processLoanRepayment(Integer schemeId, BigDecimal principalRepayment, BigDecimal interestRepayment) {
+        // Fetch mapped GL accounts for repayments
+        Integer principalGL = getGlAccountId(schemeId, "PRINCIPAL");
+        Integer interestGL = getGlAccountId(schemeId, "INTEREST");
+
+        // Post repayment transactions to respective GL accounts
+        journalEntryService.postTransaction(principalGL, principalRepayment);
+        journalEntryService.postTransaction(interestGL, interestRepayment);
+
+        // Additional logic for loan repayment if needed
+        System.out.println("Loan repayment processed successfully.");
+    }
+
+    // Helper method to fetch the GL account ID based on the scheme and transaction type (e.g., "PRINCIPAL", "INTEREST")
+    private Integer getGlAccountId(Integer schemeId, String accountType) {
+        // This is a placeholder; you'd fetch the GL account ID from your SchemeGlService or repository
+        // Example logic: Fetch GL account id from mapped GL accounts based on schemeId and accountType
+        // If no account mapping exists, throw an exception
+        // If accountType is "PRINCIPAL", fetch the mapped GL for Principal, etc.
+
+        // Simulating a GL account ID based on scheme and account type:
+        if ("PRINCIPAL".equals(accountType)) {
+            return 1001; // Placeholder value, replace with actual logic
+        } else if ("INTEREST".equals(accountType)) {
+            return 1002; // Placeholder value, replace with actual logic
+        } else if ("PENAL".equals(accountType)) {
+            return 1003; // Placeholder value, replace with actual logic
+        } else if ("FEES".equals(accountType)) {
+            return 1004; // Placeholder value, replace with actual logic
+        }
+
+        throw new BusinessException("GL Account for " + accountType + " not found for scheme ID " + schemeId);
+    }
+}

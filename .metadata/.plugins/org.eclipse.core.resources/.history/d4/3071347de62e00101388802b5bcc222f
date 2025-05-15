@@ -1,0 +1,38 @@
+package com.incede.Service.loanTransactio.loanTransationengine;
+
+import java.math.BigDecimal;
+
+import org.springframework.stereotype.Service;
+
+import com.incede.Service.journal.journalEntry.JournalEntryService;
+import com.incede.Service.scheme.schemeGl.SchemeGlService;
+
+@Service
+public class LoanTransactionService {
+
+    private final SchemeGlService schemeGlService;
+    private final JournalEntryService journalEntryService;
+
+    public LoanTransactionService(SchemeGlService schemeGlService, JournalEntryService journalEntryService) {
+        this.schemeGlService = schemeGlService;
+        this.journalEntryService = journalEntryService;
+    }
+
+    public void disburseLoan(Integer schemeId, BigDecimal principalAmount, BigDecimal interestAmount,
+                             BigDecimal penalAmount, BigDecimal feesAmount) {
+
+        Integer principalGL = schemeGlService.getGlAccountId(schemeId, "PRINCIPAL");
+        Integer interestGL = schemeGlService.getGlAccountId(schemeId, "INTEREST");
+        Integer penalGL = schemeGlService.getGlAccountId(schemeId, "PENAL");
+        Integer feesGL = schemeGlService.getGlAccountId(schemeId, "FEES");
+
+        postTransaction(principalGL, principalAmount, "PRINCIPAL");
+        postTransaction(interestGL, interestAmount, "INTEREST");
+        postTransaction(penalGL, penalAmount, "PENAL");
+        postTransaction(feesGL, feesAmount, "FEES");
+    }
+
+    private void postTransaction(Integer glAccountId, BigDecimal amount, String type) {
+        journalEntryService.postTransaction(glAccountId, amount, "CREDIT", type + " Posting");
+    }
+}

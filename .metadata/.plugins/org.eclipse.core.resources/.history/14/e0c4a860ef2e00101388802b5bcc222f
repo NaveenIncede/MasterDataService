@@ -1,0 +1,15 @@
+package com.incede.Dto.journal.journalEntry;
+
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+import java.math.BigDecimal;
+
+@Data
+@AllArgsConstructor
+@NoArgsConstructor
+public class JournalEntryDTO {
+    private Integer glAccountId;
+    private BigDecimal amount;
+}

@@ -1,0 +1,54 @@
+package com.incede.Service.loanTransactio.loanTransationengine;
+
+import java.math.BigDecimal;
+
+import org.springframework.stereotype.Service;
+
+import com.incede.Service.journal.journalEntry.JournalEntryService;
+import com.incede.Service.scheme.schemeGl.SchemeGlService;
+import com.incede.Exception.BusinessException;
+
+@Service
+public class LoanTransactionService {
+
+    private final SchemeGlService schemeGlService;
+    private final JournalEntryService journalEntryService;
+
+    public LoanTransactionService(SchemeGlService schemeGlService, JournalEntryService journalEntryService) {
+        this.schemeGlService = schemeGlService;
+        this.journalEntryService = journalEntryService;
+    }
+
+    public void disburseLoan(Integer schemeId, BigDecimal principalAmount, BigDecimal interestAmount,
+                             BigDecimal penalAmount, BigDecimal feesAmount) {
+
+        // Fetch GL account IDs for different loan components
+        Integer principalGL = getGlAccountId(schemeId, "PRINCIPAL");
+        Integer interestGL = getGlAccountId(schemeId, "INTEREST");
+        Integer penalGL = getGlAccountId(schemeId, "PENAL");
+        Integer feesGL = getGlAccountId(schemeId, "FEES");
+
+        // Post transactions to respective GL accounts
+        postTransaction(principalGL, principalAmount, "PRINCIPAL");
+        postTransaction(interestGL, interestAmount, "INTEREST");
+        postTransaction(penalGL, penalAmount, "PENAL");
+        postTransaction(feesGL, feesAmount, "FEES");
+    }
+
+    // Method to fetch GL account ID for a given scheme and account type
+    private Integer getGlAccountId(Integer schemeId, String accountType) {
+        Integer glAccountId = schemeGlService.getGlAccountId(schemeId, accountType);
+        if (glAccountId == null) {
+            throw new BusinessException("GL account not found for " + accountType + " under scheme " + schemeId);
+        }
+        return glAccountId;
+    }
+
+    // Method to post transaction for the given GL account and amount
+    private void postTransaction(Integer glAccountId, BigDecimal amount, String type) {
+        if (glAccountId == null || amount == null || amount.compareTo(BigDecimal.ZERO) <= 0) {
+            throw new BusinessException("Invalid GL account or amount for " + type + " posting");
+        }
+        journalEntryService.post(glAccountId, amount, "CREDIT", type + " Posting");
+    }
+}

@@ -1,0 +1,5 @@
+package com.incede.Model.liability.liabilityMaster;
+
+public class Liability {
+
+}
